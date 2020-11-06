@@ -52,6 +52,8 @@ namespace AzureSamples.Storage.Blob
         {
             var services = new ServiceCollection();
 
+            services.AddScoped<Application>();
+
             services.AddLogging((logging) =>
             {
                 logging.ClearProviders();
