@@ -6,4 +6,8 @@
     <RootNamespace>blob_storage</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.6.0" />
+  </ItemGroup>
+
 </Project>
