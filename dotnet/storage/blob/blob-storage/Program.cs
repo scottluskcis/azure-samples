@@ -1,12 +1,21 @@
 ﻿using System;
+using System.Threading.Tasks;
 
-namespace blob_storage
+namespace AzureSamples.Storage.Blob
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            try
+            {
+                using var app = new Application(args);
+                await app.RunAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
     }
 }
