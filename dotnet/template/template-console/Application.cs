@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace AzureSamples.Storage.Blob
+namespace AzureSamples.Storage.Template
 {
     public sealed class Application
     {
@@ -15,9 +15,7 @@ namespace AzureSamples.Storage.Blob
 
         public async Task RunAsync(IApplicationArgs args)
         {
-            _logger.LogInformation($"{nameof(Application)}.{nameof(RunAsync)} - Start");
-
-            //var service = _provider.GetRequiredService<IBlobStorageService>();
+            _logger.LogInformation($"{nameof(Application)}.{nameof(RunAsync)} - Start"); 
             await Task.Delay(1);
             _logger.LogInformation($"{nameof(Application)}.{nameof(RunAsync)} - End");
         }

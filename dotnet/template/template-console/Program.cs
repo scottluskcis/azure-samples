@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using CommandLine;
 
-namespace AzureSamples.Storage.Blob
+namespace AzureSamples.Storage.Template
 {
     class Program
     {

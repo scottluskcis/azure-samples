@@ -20,6 +20,19 @@ az storage account create --name MyStorageAccount --resource-group MyResourceGro
 
 Alternatively if you want to configure and set it up you can use the [Azure Storage Emulator for development and testing](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) if you want to run this locally
 
+### Configuration
+
+Add a new file called `appsettings.dev.json` to the same directory as the `appsettings.json` and add the content below to the file. Update the information for `BlobStorage` to match the container storage account you setup for the [Prerequisites](#prerequisites)
+
+```json
+{
+  "BlobStorage": {
+    "ConnectionString": "<your connection string here>",
+    "ContainerName": "<your container name here>"
+  }
+}
+```
+
 ## References
 
 * [Azure Blob storage documentation](https://docs.microsoft.com/en-us/azure/storage/blobs/)
