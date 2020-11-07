@@ -6,6 +6,7 @@ namespace AzureSamples.Storage.Blob
     {
         string ConnectionString { get; }
         string ContainerName { get; }
+        bool CreateContainerIfNotExists { get; }
         void Validate();
     }
 
@@ -13,6 +14,7 @@ namespace AzureSamples.Storage.Blob
     {
         public string ConnectionString { get; set; }
         public string ContainerName { get; set; }
+        public bool CreateContainerIfNotExists { get; }
 
         public void Validate()
         {

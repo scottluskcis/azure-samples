@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "blob-storage": {
+      "commandName": "Project",
+      "commandLineArgs": "-p true -u true -f uploads -n test.txt",
+      "environmentVariables": {
+        "ENVIRONMENT": "dev"
+      }
+    }
+  }
+}

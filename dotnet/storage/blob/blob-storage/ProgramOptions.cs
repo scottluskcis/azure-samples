@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Text;
 using CommandLine;
 
 namespace AzureSamples.Storage.Blob
@@ -7,7 +9,7 @@ namespace AzureSamples.Storage.Blob
     {
         bool UploadFiles { get; }
         string FilesDirectory { get; }
-        string FileNames { get; }
+        IEnumerable<string> FileNames { get; }
     }
 
     public sealed class ProgramOptions : IApplicationArgs
@@ -24,8 +26,8 @@ namespace AzureSamples.Storage.Blob
         [Option('f', "files-directory", Default = "uploads", Required = false, HelpText = "Path to where files exist to be uploaded to blob storage")]
         public string FilesDirectory { get; set; }
         
-        [Option('n', "file-names", Default = "", Required = false, HelpText = "Names of files in FilesDirectory to be uploaded, if 'all' is specified will upload all files in directory")]
-        public string FileNames { get; set; }
+        [Option('n', "file-names", Separator = ',', Default = "", Required = false, HelpText = "Names of files in FilesDirectory to be uploaded separated by a comma, if 'all' is specified will upload all files in directory")]
+        public IEnumerable<string> FileNames { get; set; }
 
         public override string ToString()
         {

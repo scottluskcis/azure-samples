@@ -9,7 +9,8 @@ namespace AzureSamples.Storage.Blob
 {
     public interface IBlobStorageService
     {
-
+        Task<string> UploadFileAsync(string blobName, string filePath, CancellationToken cancellationToken = default);
+        Task<string> UploadAsync(string blobName, Stream content, CancellationToken cancellationToken = default);
     }
 
     public class BlobStorageService : IBlobStorageService
@@ -25,33 +26,41 @@ namespace AzureSamples.Storage.Blob
             _logger = logger;
         }
 
-        public async Task UploadFileAsync(string blobName, string filePath, CancellationToken cancellationToken = default)
+        public async Task<string> UploadFileAsync(string blobName, string filePath, CancellationToken cancellationToken = default)
         {
             _logger.LogDebug($"Reading file '{filePath}' into stream");
             await using var content = File.OpenRead(filePath);
-            await UploadAsync(blobName, content, cancellationToken);
+            var result = await UploadAsync(blobName, content, cancellationToken);
+            return result;
         }
 
-        public async Task UploadAsync(string blobName, Stream content, CancellationToken cancellationToken = default)
+        public async Task<string> UploadAsync(string blobName, Stream content, CancellationToken cancellationToken = default)
         {
-            var container = GetBlobContainerClient();
+            _logger.LogInformation($"Generating unique name for Blob '{blobName}'");
+            var uniqueName = $"{Guid.NewGuid()}-{blobName}";
+            _logger.LogInformation($"Unique name '{uniqueName}' generated for Blob '{blobName}'");
 
-            _logger.LogInformation($"Uploading Blob '{blobName}'");
-            var response = await container.UploadBlobAsync(blobName, content, cancellationToken);
-            _logger.LogDebug($"Blob '{blobName}' Uploaded, BlobSequenceNumber: '{response.Value.BlobSequenceNumber}', VersionId: '{response.Value.VersionId}', ETag: '{response.Value.ETag}'");
+            _logger.LogInformation($"Retrieving BlobClient for Blob '{uniqueName}'");
+            var client = await GetBlobClientAsync(uniqueName);
+
+            _logger.LogInformation($"Uploading Blob '{uniqueName}'");
+            var response = await client.UploadAsync(content, cancellationToken);
+            _logger.LogDebug($"Blob '{uniqueName}' Uploaded, BlobSequenceNumber: '{response.Value.BlobSequenceNumber}', VersionId: '{response.Value.VersionId}', ETag: '{response.Value.ETag}'");
+
+            return uniqueName;
         }
 
-        private BlobClient GetBlobClient(string blobName)
+        private async Task<BlobClient> GetBlobClientAsync(string blobName)
         {
             if(string.IsNullOrEmpty(blobName))
                 throw new ArgumentNullException(nameof(blobName));
             
-            var container = GetBlobContainerClient();
+            var container = await GetBlobContainerClientAsync();
             var blob = container.GetBlobClient(blobName);
             return blob;
         }
 
-        private BlobContainerClient GetBlobContainerClient()
+        private async Task<BlobContainerClient> GetBlobContainerClientAsync()
         {
             if(_configuration == null)
                 throw new InvalidOperationException($"no {nameof(IBlobStorageServiceConfiguration)} was found, cannot create container");
@@ -62,8 +71,9 @@ namespace AzureSamples.Storage.Blob
                 _configuration.ConnectionString,
                 _configuration.ContainerName);
 
-            container.Create();
-
+            if(_configuration.CreateContainerIfNotExists)
+                await container.CreateIfNotExistsAsync();
+;
             return container;
         }
     }
