@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "blob-storage": {
+      "commandName": "Project",
+      "commandLineArgs": "-p -u -f uploads -n all -d -o downloads -z -k",
+      "environmentVariables": {
+        "ENVIRONMENT": "dev"
+      }
+    }
+  }
+}
