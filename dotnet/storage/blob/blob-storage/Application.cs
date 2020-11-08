@@ -30,12 +30,18 @@ namespace AzureSamples.Storage.Blob
 
                 if (args.PrintExistingOnly)
                 {
-                    await GetBlobNamesAsync(cancellationToken);
+                    blobs = (await GetBlobNamesAsync(cancellationToken)).ToList();
+
+                    if (args.GenerateSasTokens)
+                        await GetSasTokensAsync(blobs, cancellationToken);
                 }
                 else
                 {
                     if (args.UploadFiles)
                         blobs = await UploadFilesAsync(args.UploadsDirectory, args.FilesToUpload?.ToList(), cancellationToken);
+
+                    if (args.GenerateSasTokens)
+                        await GetSasTokensAsync(blobs, cancellationToken);
 
                     if (args.DownloadBlobs)
                         await DownloadBlobsAsync(args.DownloadsDirectory, blobs, cancellationToken);
@@ -111,6 +117,43 @@ namespace AzureSamples.Storage.Blob
             _logger.LogDebug($"{nameof(Application)}.{nameof(GetBlobNamesAsync)} - End");
 
             return blobs;
+        }
+
+        private async Task GetSasTokensAsync(IList<string> blobNames, CancellationToken cancellationToken = default)
+        {
+            _logger.LogDebug($"{nameof(Application)}.{nameof(GetSasTokensAsync)} - Start");
+
+            if (!(blobNames?.Any() ?? false))
+            {
+                _logger.LogWarning("No blob names were specified to generate SAS tokens for");
+                return;
+            }
+
+            var tokenUrls = new List<string>();
+
+            var getSasTokenTasks = blobNames
+                .Select(blobName => _service.GetSharedAccessSignatureAsync(blobName, cancellationToken)
+                    .ContinueWith(task =>
+                    {
+                        if (task.Exception != null)
+                        {
+                            _logger.LogError(task.Exception, $"Error trying to generate SAS Url for blob '{blobName}'");
+                            throw task.Exception;
+                        }
+
+                        tokenUrls.Add(task.Result.ToString());
+                    }, cancellationToken));
+
+            await Task.WhenAll(getSasTokenTasks);
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"Generated '{tokenUrls.Count}' SAS Urls");
+            foreach (var url in tokenUrls)
+                sb.AppendLine(url);
+
+            _logger.LogInformation(sb.ToString());
+
+            _logger.LogDebug($"{nameof(Application)}.{nameof(GetSasTokensAsync)} - End");
         }
 
         private async Task DownloadBlobsAsync(string downloadsDirectory, IList<string> blobNames, CancellationToken cancellationToken = default)

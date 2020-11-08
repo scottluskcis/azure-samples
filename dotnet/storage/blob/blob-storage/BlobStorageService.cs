@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using Microsoft.Extensions.Logging;
 
 namespace AzureSamples.Storage.Blob
@@ -14,6 +16,7 @@ namespace AzureSamples.Storage.Blob
     {
         Task<string> UploadFileAsync(string blobName, string filePath, CancellationToken cancellationToken = default);
         Task<string> UploadAsync(string blobName, Stream content, CancellationToken cancellationToken = default);
+        Task<Uri> GetSharedAccessSignatureAsync(string blobName, CancellationToken cancellationToken = default);
         Task<IEnumerable<string>> GetNamesAsync(CancellationToken cancellationToken = default);
         Task DownloadAsync(string blobName, string downloadPath, CancellationToken cancellationToken = default);
         Task DownloadAsync(string blobName, Stream destination, CancellationToken cancellationToken = default);
@@ -113,7 +116,37 @@ namespace AzureSamples.Storage.Blob
             var client = await GetBlobContainerClientAsync();
 
             _logger.LogInformation("Deleting Blob Container");
-            await client.DeleteAsync(cancellationToken: cancellationToken);
+            await client.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+        }
+
+        public async Task<Uri> GetSharedAccessSignatureAsync(string blobName, CancellationToken cancellationToken = default)
+        {
+            _logger.LogDebug("Generating SAS options");
+            var sas = new BlobSasBuilder
+            {
+                BlobContainerName = _configuration.ContainerName,
+                BlobName = blobName,
+                Resource = "b",
+                ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(_configuration.SasExpirationMinutes)
+            };
+            
+            _logger.LogDebug("Setting permissions to Read access");
+            sas.SetPermissions(BlobAccountSasPermissions.Read);
+
+            _logger.LogDebug("Retrieving values from Connection String");
+            var values = GetConnectionStringValues();
+
+            _logger.LogDebug("Creating SharedKeyCredential to sign the SAS token");
+            var credential = new StorageSharedKeyCredential(values["AccountName"], values["AccountKey"]);
+
+            _logger.LogDebug($"Retrieving Blob Client for blob '{blobName}'");
+            var blobClient = await GetBlobClientAsync(blobName);
+
+            _logger.LogInformation("Building SAS URI Query");
+            var queryString = sas.ToSasQueryParameters(credential).ToString();
+
+            var uri = new Uri($"{blobClient.Uri}?{queryString}");
+            return uri;
         }
 
         private async Task<BlobClient> GetBlobClientAsync(string blobName)
@@ -129,7 +162,7 @@ namespace AzureSamples.Storage.Blob
         private async Task<BlobContainerClient> GetBlobContainerClientAsync()
         {
             if(_configuration == null)
-                throw new InvalidOperationException($"no {nameof(IBlobStorageServiceConfiguration)} was found, cannot create container");
+                throw new InvalidOperationException($"No {nameof(IBlobStorageServiceConfiguration)} was found, cannot create container");
             
             _configuration.Validate();
 
@@ -139,8 +172,24 @@ namespace AzureSamples.Storage.Blob
 
             if(_configuration.CreateContainerIfNotExists)
                 await container.CreateIfNotExistsAsync();
-;
+
             return container;
+        }
+
+        private IDictionary<string, string> GetConnectionStringValues()
+        {
+            if (string.IsNullOrEmpty(_configuration?.ConnectionString))
+                return new Dictionary<string, string>();
+
+            var split = _configuration.ConnectionString.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+            var result = split.Select(keyValue =>
+                    keyValue.Split('=', 2))
+                .ToDictionary(
+                    value => value[0],
+                    value => value[1]);
+
+            return new Dictionary<string, string>(result, StringComparer.OrdinalIgnoreCase);
         }
     }
 }

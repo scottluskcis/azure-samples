@@ -2,7 +2,7 @@
   "profiles": {
     "blob-storage": {
       "commandName": "Project",
-      "commandLineArgs": "-p true -t 120 -u true -f uploads -n all -g true -d true -o downloads -w all -l 20 -z true",
+      "commandLineArgs": "-p -u -f uploads -n all -d -o downloads -z -k",
       "environmentVariables": {
         "ENVIRONMENT": "dev"
       }

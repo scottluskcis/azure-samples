@@ -16,6 +16,7 @@ namespace AzureSamples.Storage.Blob
         bool DeleteBlobs { get; }
         bool DeleteContainer { get; }
         bool PrintExistingOnly { get; }
+        bool GenerateSasTokens { get; }
     }
 
     public sealed class ProgramOptions : IApplicationArgs
@@ -55,5 +56,8 @@ namespace AzureSamples.Storage.Blob
 
         [Option('y', "print-only", Default = false, Required = false, HelpText = "True to only print names of existing blobs in storage, no other operations are performed if this is true")]
         public bool PrintExistingOnly { get; set; }
+
+        [Option('k', "generate-sas-tokens", Default = false, Required = false, HelpText = "True to generate SAS tokens for blobs")]
+        public bool GenerateSasTokens { get; set; }
     }
 }

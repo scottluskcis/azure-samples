@@ -108,3 +108,4 @@ blob-storage -y
 * [Azure Storage Blobs client library for .NET](https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/storage/Azure.Storage.Blobs/README.md)
 * [Azure Storage Emulator for development and testing](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator)
 * [Azure Storage Account](https://docs.microsoft.com/azure/storage/common/storage-account-overview)
+* [Beginners guide and reference to Azure Blob Storage SDK v12 .Net C#](https://www.craftedforeveryone.com/beginners-guide-and-reference-to-azure-blob-storage-sdk-v12-dot-net-csharp/)
