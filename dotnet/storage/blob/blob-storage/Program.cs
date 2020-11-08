@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 
@@ -20,13 +21,15 @@ namespace AzureSamples.Storage.Blob
             try
             {
                 Console.WriteLine(opts.ToString());
-
+                
                 Console.WriteLine("Executing...");
 
-                provider = AppServicesProvider.Build();
+                provider = AppServicesProvider.Build(opts.Environment);
+
+                var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(opts.Timeout));
 
                 var service = provider.GetRequiredService<Application>();
-                await service.RunAsync(opts);
+                await service.RunAsync(opts, cancellationTokenSource.Token);
 
                 if (opts.PauseBeforeExit)
                 {

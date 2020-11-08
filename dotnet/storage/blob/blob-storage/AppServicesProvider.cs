@@ -21,8 +21,11 @@ namespace AzureSamples.Storage.Blob
             RegisterServices();
         }
 
-        public static AppServicesProvider Build()
+        public static AppServicesProvider Build(string environment)
         {
+            if (!string.IsNullOrEmpty(environment))
+                Environment.SetEnvironmentVariable("ENVIRONMENT", environment);
+
             var appServiceProvider = new AppServicesProvider();
             return appServiceProvider;
         }

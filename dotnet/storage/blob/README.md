@@ -12,10 +12,16 @@ Be sure to be familiar with the [Key concepts](https://github.com/Azure/azure-sd
 
 You will need an Azure [Storage Account](https://docs.microsoft.com/azure/storage/common/storage-account-overview) to use for testing out upload/download of blob storage. You can either create one in an [Azure subscription](https://azure.microsoft.com/free/) or you can use local storage as well.
 
-To create a new Storage Account in Azure using Azure CLI run the following command using Azure CLI:
+To create a new Storage Account in Azure using Azure CLI run the following command using Azure CLI (replace any values encloded in `< >` with your own):
 
 ```powershell
-az storage account create --name MyStorageAccount --resource-group MyResourceGroup --location westus --sku Standard_LRS
+az storage account create --name <account_name> --resource-group <resource_group> --location <location> --sku <sku>
+```
+
+To get the connection string of an existing storage account use the following command in Azure CLI  (replace any values encloded in `< >` with your own):
+
+```powershell
+az storage account show-connection-string --name <account_name> --resource-group <resource_group>
 ```
 
 Alternatively if you want to configure and set it up you can use the [Azure Storage Emulator for development and testing](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) if you want to run this locally
@@ -27,8 +33,8 @@ Add a new file called `appsettings.dev.json` to the same directory as the `appse
 ```json
 {
   "BlobStorage": {
-    "ConnectionString": "<your connection string here>",
-    "ContainerName": "<your container name here>"
+    "ConnectionString": "<your_connection_string_here>",
+    "ContainerName": "<your_container_name_here>"
   }
 }
 ```

@@ -1,48 +1,59 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using CommandLine;
 
 namespace AzureSamples.Storage.Blob
 {
+    /// <summary>
+    /// settings that identify how to run the application when launched
+    /// </summary>
     public interface IApplicationArgs
     {
         bool UploadFiles { get; }
-        string FilesDirectory { get; }
-        IEnumerable<string> FileNames { get; }
+        string UploadsDirectory { get; }
+        IEnumerable<string> FilesToUpload { get; }
+        bool DownloadBlobs { get; }
+        string DownloadsDirectory { get; }
+        bool DeleteBlobs { get; }
+        bool DeleteContainer { get; }
+        bool PrintExistingOnly { get; }
     }
 
     public sealed class ProgramOptions : IApplicationArgs
     {
-        [Option('e', "error-status-code", Required = false, Default = -1, HelpText = "Exit status code to assign to Environment.ExitCode if an Exception occurs, defaults to -1")]
+        [Option('e', "environment", Required = false, Default = "dev", HelpText = "Environment to run the application under (i.e. local, dev, staging, prod)")]
+        public string Environment { get; set; }
+
+        [Option('s', "error-status-code", Required = false, Default = -1, HelpText = "Exit status code to assign to Environment.ExitCode if an Exception occurs, defaults to -1")]
         public int ErrorStatusCode { get; set; }
 
         [Option('p', "pause-before-exit", Default = false, Required = false, HelpText = "True to have console pause awaiting Enter key to be pressed before exiting")]
         public bool PauseBeforeExit { get; set; }
-        
+
+        [Option('t', "timeout", Default = 120, Required = false, HelpText = "Value in seconds to wait before timing out and sending a cancellation of any async requests, defaults to 120")]
+        public int Timeout { get; set; }
+
         [Option('u', "upload-files", Default = false, Required = false, HelpText = "True to invoke the operation to upload files to blob storage")]
         public bool UploadFiles { get; set; }
 
-        [Option('f', "files-directory", Default = "uploads", Required = false, HelpText = "Path to where files exist to be uploaded to blob storage")]
-        public string FilesDirectory { get; set; }
+        [Option('f', "uploads-directory", Default = "uploads", Required = false, HelpText = "Path to where files exist to be uploaded to blob storage")]
+        public string UploadsDirectory { get; set; }
         
-        [Option('n', "file-names", Separator = ',', Default = "", Required = false, HelpText = "Names of files in FilesDirectory to be uploaded separated by a comma, if 'all' is specified will upload all files in directory")]
-        public IEnumerable<string> FileNames { get; set; }
+        [Option('n', "upload-file-names", Separator = ',', Default = null, Required = false, HelpText = "Names of files in UploadsDirectory to be uploaded separated by a comma, if 'all' is specified will upload all files in directory")]
+        public IEnumerable<string> FilesToUpload { get; set; }
 
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
+        [Option('d', "download-blobs", Default = false, Required = false, HelpText = "True to invoke the operation to download files from blob storage")]
+        public bool DownloadBlobs { get; set; }
 
-            sb.AppendLine($"{nameof(ProgramOptions)} Provided:");
-            sb.AppendLine("--------------------------------------------------------------------");
-            sb.AppendLine($"  -u, --upload-files        : {UploadFiles}");
-            sb.AppendLine($"  -f, --files-directory     : {FilesDirectory}");
-            sb.AppendLine($"  -n, --file-names          : {FileNames}");
-            sb.AppendLine($"  -e, --error-status-code   : {ErrorStatusCode}");
-            sb.AppendLine($"  -p, --pause-before-exit   : {PauseBeforeExit}");
-            sb.AppendLine("--------------------------------------------------------------------");
+        [Option('o', "downloads-directory", Default = "downloads", Required = false, HelpText = "Path to where files should be saved to when downloaded from blob storage")]
+        public string DownloadsDirectory { get; set; }
 
-            return sb.ToString();
-        }
+        [Option('x', "delete-blobs", Default = false, Required = false, HelpText = "True to delete any blobs that exist in specified container")]
+        public bool DeleteBlobs { get; set; }
+
+        [Option('z', "delete-container", Default = false, Required = false, HelpText = "True to delete the entire blob container and all blobs that are saved, overrides DeleteBlobs options")]
+        public bool DeleteContainer { get; set; }
+
+        [Option('y', "print-only", Default = false, Required = false, HelpText = "True to only print names of existing blobs in storage, no other operations are performed if this is true")]
+        public bool PrintExistingOnly { get; set; }
     }
 }

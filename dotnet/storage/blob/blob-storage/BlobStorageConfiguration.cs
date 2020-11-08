@@ -14,7 +14,7 @@ namespace AzureSamples.Storage.Blob
     {
         public string ConnectionString { get; set; }
         public string ContainerName { get; set; }
-        public bool CreateContainerIfNotExists { get; }
+        public bool CreateContainerIfNotExists { get; set; }
 
         public void Validate()
         {
